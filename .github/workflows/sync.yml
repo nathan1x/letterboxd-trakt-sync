@@ -41,14 +41,15 @@ jobs:
       run: |
         export PYTHONUNBUFFERED=1
         
-        # 1. Rename the colliding local file to prevent circular import loops entirely
-        mv letterboxd_trakt/trakt.py letterboxd_trakt/local_trakt.py
+        # 1. Temporarily move the internal colliding directory out of Python's immediate search tree
+        mv letterboxd_trakt engine_exec
         
-        # 2. Update the reference inside main.py to point to the renamed file name
-        sed -i 's/from .trakt import/from .local_trakt import/g' letterboxd_trakt/main.py
+        # 2. Fix the file internal path references so they look globally inside the execution scope
+        sed -i 's/from letterboxd_trakt/from engine_exec/g' engine_exec/main.py
+        sed -i 's/from .trakt/from engine_exec.trakt/g' engine_exec/main.py
         
-        # 3. Clean any cache files and execute the script natively
+        # 3. Clean up the system caching blocks and kick off execution cleanly
         find . -name "*.pyc" -delete
         find . -name "__pycache__" -delete
         
-        timeout 60s python letterboxd_trakt/main.py || true
+        timeout 60s python engine_exec/main.py || true
