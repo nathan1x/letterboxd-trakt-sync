@@ -22,7 +22,6 @@ jobs:
     - name: Install System Dependencies
       run: |
         pip install -r requirements.txt
-        pip install --force-reinstall trakt==2.15.0
 
     - name: Dynamically Create config.yml
       run: |
@@ -42,9 +41,14 @@ jobs:
       run: |
         export PYTHONUNBUFFERED=1
         
-        # Remove any lingering python compilation caches that might be locking the module conflict
+        # 1. Rename the colliding local file to prevent circular import loops entirely
+        mv letterboxd_trakt/trakt.py letterboxd_trakt/local_trakt.py
+        
+        # 2. Update the reference inside main.py to point to the renamed file name
+        sed -i 's/from .trakt import/from .local_trakt import/g' letterboxd_trakt/main.py
+        
+        # 3. Clean any cache files and execute the script natively
         find . -name "*.pyc" -delete
         find . -name "__pycache__" -delete
         
-        # Force Python to execute the folder as a package/module (-m), fixing the local namespace trap
-        timeout 60s python -m letterboxd_trakt.main || true
+        timeout 60s python letterboxd_trakt/main.py || true
