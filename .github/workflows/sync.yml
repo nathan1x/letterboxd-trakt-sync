@@ -27,8 +27,7 @@ jobs:
       run: |
         cat <<EOF > config.yml
         accounts:
-          - letterboxd_username: "dietc0kehead"  # Switched back to Mal since we are masking the browser instead
-            trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
+          - trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
             trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
             sync_ratings: false
             sync_watched: false
@@ -41,10 +40,6 @@ jobs:
     - name: Execute Sync Engine via uv
       run: |
         export PYTHONUNBUFFERED=1
-        
-        # Inject standard desktop Chrome environment variables to mask the script signature
-        export HTTP_USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-        export USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         
         # Clean lingering temporary execution folders if any exist
         rm -rf engine_exec
