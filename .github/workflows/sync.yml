@@ -27,7 +27,7 @@ jobs:
       run: |
         cat <<EOF > config.yml
         accounts:
-          - letterboxd_username: "dietc0kehead"
+          - letterboxd_username: "nathan1x"  # Changed to your username to bypass her profile privacy wall
             trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
             trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
             sync_ratings: false
