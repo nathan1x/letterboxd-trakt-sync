@@ -41,6 +41,6 @@ jobs:
     - name: Execute Sync Engine
       run: |
         export PYTHONUNBUFFERED=1
-        # Set the Python path to look at the root directory first, avoiding the circular folder conflict
-        export PYTHONPATH="${PYTHONPATH}:${PWD}"
-        timeout 60s python letterboxd_trakt/main.py || true
+        # Change directly into the subdirectory so the engine's internal imports evaluate globally
+        cd letterboxd_trakt
+        timeout 60s python main.py || true
