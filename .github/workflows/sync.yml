@@ -13,15 +13,15 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Install uv (Native Package Manager)
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: 'pip'
-
-    - name: Install System Dependencies
-      run: |
-        pip install -r requirements.txt
 
     - name: Dynamically Create config.yml
       run: |
@@ -37,19 +37,13 @@ jobs:
             trakt_list_name: "NO SPOILERS (Until Mal Sees It)"
         EOF
 
-    - name: Execute Sync Engine
+    - name: Execute Sync Engine via uv
       run: |
         export PYTHONUNBUFFERED=1
         
-        # 1. Rename the local conflicting tracking file to break the circular dependency loop
-        mv letterboxd_trakt/trakt.py letterboxd_trakt/local_trakt_wrapper.py
+        # Clean lingering temporary execution folders from previous failed workflow designs
+        rm -rf engine_exec
+        git checkout -- .
         
-        # 2. Rewrite all absolute and relative internal module reference tracks globally
-        sed -i 's/from .trakt import/from .local_trakt_wrapper import/g' letterboxd_trakt/main.py
-        sed -i 's/import letterboxd_trakt.trakt/import letterboxd_trakt.local_trakt_wrapper/g' letterboxd_trakt/main.py
-        
-        # 3. Clean runtime compilation caches and execute the patched engine cleanly
-        find . -name "*.pyc" -delete
-        find . -name "__pycache__" -delete
-        
-        timeout 60s python letterboxd_trakt/main.py || true
+        # Run the package using the native manager which handles parent package structures cleanly
+        timeout 60s uv run letterboxd-trakt || true
