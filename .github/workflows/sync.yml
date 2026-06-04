@@ -41,15 +41,15 @@ jobs:
       run: |
         export PYTHONUNBUFFERED=1
         
-        # 1. Temporarily move the internal colliding directory out of Python's immediate search tree
-        mv letterboxd_trakt engine_exec
+        # 1. Rename the local conflicting tracking file to break the circular dependency loop
+        mv letterboxd_trakt/trakt.py letterboxd_trakt/local_trakt_wrapper.py
         
-        # 2. Fix the file internal path references so they look globally inside the execution scope
-        sed -i 's/from letterboxd_trakt/from engine_exec/g' engine_exec/main.py
-        sed -i 's/from .trakt/from engine_exec.trakt/g' engine_exec/main.py
+        # 2. Rewrite all absolute and relative internal module reference tracks globally
+        sed -i 's/from .trakt import/from .local_trakt_wrapper import/g' letterboxd_trakt/main.py
+        sed -i 's/import letterboxd_trakt.trakt/import letterboxd_trakt.local_trakt_wrapper/g' letterboxd_trakt/main.py
         
-        # 3. Clean up the system caching blocks and kick off execution cleanly
+        # 3. Clean runtime compilation caches and execute the patched engine cleanly
         find . -name "*.pyc" -delete
         find . -name "__pycache__" -delete
         
-        timeout 60s python engine_exec/main.py || true
+        timeout 60s python letterboxd_trakt/main.py || true
