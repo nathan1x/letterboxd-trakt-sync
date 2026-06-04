@@ -16,18 +16,28 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'  # Fixed syntax here
+        python-version: '3.11'
         cache: 'pip'
 
     - name: Install System Dependencies
       run: |
         pip install -r requirements.txt
 
+    - name: Dynamically Create config.yml
+      run: |
+        cat <<EOF > config.yml
+        trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
+        trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
+        letterboxd_username: "dietc0kehead"
+        sync_ratings: false
+        sync_watched: false
+        sync_watchlist: false
+        lists:
+          - letterboxd_url: "${{ secrets.LETTERBOXD_LIST_URL }}"
+            trakt_list_name: "NO SPOILERS (Until Mal Sees It)"
+        EOF
+
     - name: Execute Sync Engine
-      env:
-        TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
-        TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
-        LETTERBOXD_LIST_URL: ${{ secrets.LETTERBOXD_LIST_URL }}
       run: |
         export PYTHONUNBUFFERED=1
         timeout 60s python letterboxd_trakt/main.py || true
