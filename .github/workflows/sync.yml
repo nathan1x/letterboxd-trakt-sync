@@ -26,22 +26,23 @@ jobs:
     - name: Dynamically Create config.yml
       run: |
         cat <<EOF > config.yml
-        trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
-        trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
-        letterboxd_username: "dietc0kehead"
-        sync_ratings: false
-        sync_watched: false
-        sync_watchlist: false
-        lists:
-          - letterboxd_url: "${{ secrets.LETTERBOXD_LIST_URL }}"
-            trakt_list_name: "NO SPOILERS (Until Mal Sees It)"
+        accounts:
+          - letterboxd_username: "dietc0kehead"
+            trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
+            trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
+            sync_ratings: false
+            sync_watched: false
+            sync_watchlist: false
+            lists:
+              - letterboxd_url: "${{ secrets.LETTERBOXD_LIST_URL }}"
+                trakt_list_name: "NO SPOILERS (Until Mal Sees It)"
         EOF
 
     - name: Execute Sync Engine via uv
       run: |
         export PYTHONUNBUFFERED=1
         
-        # Clean lingering temporary execution folders from previous failed workflow designs
+        # Clean lingering temporary execution folders if any exist
         rm -rf engine_exec
         git checkout -- .
         
