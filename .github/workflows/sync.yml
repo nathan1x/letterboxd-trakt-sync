@@ -41,6 +41,10 @@ jobs:
     - name: Execute Sync Engine
       run: |
         export PYTHONUNBUFFERED=1
-        # Change directly into the subdirectory so the engine's internal imports evaluate globally
-        cd letterboxd_trakt
-        timeout 60s python main.py || true
+        
+        # Remove any lingering python compilation caches that might be locking the module conflict
+        find . -name "*.pyc" -delete
+        find . -name "__pycache__" -delete
+        
+        # Force Python to execute the folder as a package/module (-m), fixing the local namespace trap
+        timeout 60s python -m letterboxd_trakt.main || true
