@@ -1,11 +1,33 @@
-- name: Execute Sync Engine
+name: Scheduled Letterboxd to Trakt Sync
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Runs automatically every 12 hours
+  workflow_dispatch:       # Keeps a manual "Run Workflow" button active for you
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'  # Fixed syntax here
+        cache: 'pip'
+
+    - name: Install System Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Execute Sync Engine
       env:
         TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
         TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         LETTERBOXD_LIST_URL: ${{ secrets.LETTERBOXD_LIST_URL }}
       run: |
-        # Force Python to flush output instantly so we can see the Trakt pin code in real-time
         export PYTHONUNBUFFERED=1
-        
-        # Run the engine. If it stalls waiting for the pin code, automatically shut down after 60 seconds
         timeout 60s python letterboxd_trakt/main.py || true
