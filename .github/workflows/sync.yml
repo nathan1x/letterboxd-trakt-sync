@@ -1,0 +1,11 @@
+- name: Execute Sync Engine
+      env:
+        TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+        TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+        LETTERBOXD_LIST_URL: ${{ secrets.LETTERBOXD_LIST_URL }}
+      run: |
+        # Force Python to flush output instantly so we can see the Trakt pin code in real-time
+        export PYTHONUNBUFFERED=1
+        
+        # Run the engine. If it stalls waiting for the pin code, automatically shut down after 60 seconds
+        timeout 60s python letterboxd_trakt/main.py || true
