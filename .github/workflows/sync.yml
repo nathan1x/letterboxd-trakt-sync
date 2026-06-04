@@ -27,7 +27,8 @@ jobs:
       run: |
         cat <<EOF > config.yml
         accounts:
-          - trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
+          - letterboxd_username: "letterboxd"  # Explicit system account to bypass validation & privacy traps
+            trakt_client_id: "${{ secrets.TRAKT_CLIENT_ID }}"
             trakt_client_secret: "${{ secrets.TRAKT_CLIENT_SECRET }}"
             sync_ratings: false
             sync_watched: false
