@@ -22,7 +22,6 @@ jobs:
     - name: Install System Dependencies
       run: |
         pip install -r requirements.txt
-        # Explicitly force a stable, older version of trakt to resolve the circular import bug
         pip install --force-reinstall trakt==2.15.0
 
     - name: Dynamically Create config.yml
@@ -42,4 +41,6 @@ jobs:
     - name: Execute Sync Engine
       run: |
         export PYTHONUNBUFFERED=1
+        # Set the Python path to look at the root directory first, avoiding the circular folder conflict
+        export PYTHONPATH="${PYTHONPATH}:${PWD}"
         timeout 60s python letterboxd_trakt/main.py || true
